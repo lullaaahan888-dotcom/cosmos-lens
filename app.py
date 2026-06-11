@@ -10,6 +10,11 @@ import os
 load_dotenv()
 
 API_KEY = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY", None)
+
+if not API_KEY:
+    st.error("Missing GEMINI_API_KEY. Add it in .env locally or Streamlit Secrets online.")
+    st.stop()
+
 client = genai.Client(api_key=API_KEY)
 
 st.set_page_config(page_title="Cosmos Lens", page_icon="🔭", layout="wide")
@@ -126,6 +131,90 @@ label, p, span, div, h1, h2, h3, h4, h5, h6 {
     border: 1px solid rgba(255,255,255,0.2);
     font-size: 1.3rem;
     font-weight: bold;
+}
+
+
+/* BUTTON + WIDGET FIXES */
+.stButton > button {
+    background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,0.25) !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    padding: 0.6rem 1rem !important;
+}
+
+.stButton > button:hover {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important;
+    color: #ffffff !important;
+    border-color: rgba(255,255,255,0.45) !important;
+}
+
+.stButton > button:focus {
+    color: #ffffff !important;
+    border-color: #93c5fd !important;
+    box-shadow: 0 0 0 0.2rem rgba(59,130,246,0.35) !important;
+}
+
+/* Text inside normal Streamlit buttons */
+.stButton > button p {
+    color: #ffffff !important;
+}
+
+/* Checkboxes */
+[data-testid="stCheckbox"] label,
+[data-testid="stCheckbox"] span,
+[data-testid="stCheckbox"] p {
+    color: #ffffff !important;
+}
+
+/* Radio buttons */
+[data-testid="stRadio"] label,
+[data-testid="stRadio"] span,
+[data-testid="stRadio"] p {
+    color: #ffffff !important;
+}
+
+/* Multiselect */
+[data-baseweb="select"] {
+    color: #ffffff !important;
+}
+
+[data-baseweb="tag"] {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+[data-baseweb="tag"] span {
+    color: #ffffff !important;
+}
+
+/* Input fields */
+.stTextInput input,
+.stTextArea textarea {
+    color: #ffffff !important;
+    background-color: rgba(15,23,42,0.85) !important;
+    border: 1px solid rgba(255,255,255,0.25) !important;
+}
+
+.stTextInput input::placeholder,
+.stTextArea textarea::placeholder {
+    color: #cbd5e1 !important;
+}
+
+/* Slider labels/ticks */
+[data-testid="stSlider"] label,
+[data-testid="stSlider"] span,
+[data-testid="stSlider"] p {
+    color: #ffffff !important;
+}
+
+/* Metric cards */
+[data-testid="stMetric"] {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 1rem;
 }
 
 /* MOBILE FIXES */
