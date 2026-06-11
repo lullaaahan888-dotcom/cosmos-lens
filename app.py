@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-API_KEY = os.getenv("GEMINI_API_KEY")
+
+API_KEY = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY", None)
 client = genai.Client(api_key=API_KEY)
 
 st.set_page_config(page_title="Cosmos Lens", page_icon="🔭", layout="wide")
@@ -30,6 +31,25 @@ html, body, [class*="css"] {
     color: white;
 }
 
+/* FORCE READABILITY */
+label, p, span, div, h1, h2, h3, h4, h5, h6 {
+    color: #ffffff !important;
+}
+
+.stCheckbox label,
+.stRadio label,
+.stMultiSelect label,
+.stTextInput label,
+.stTextArea label,
+.stSelectSlider label {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+[data-testid="stMarkdownContainer"] {
+    color: #ffffff !important;
+}
+
 .hero {
     min-height: 72vh;
     padding: 4rem;
@@ -49,13 +69,13 @@ html, body, [class*="css"] {
 }
 
 .hero h1 {
-    font-size: 5rem;
+    font-size: clamp(2.4rem, 8vw, 5rem);
     font-weight: 800;
     margin-bottom: 0.5rem;
 }
 
 .hero h2 {
-    font-size: 2.1rem;
+    font-size: clamp(1.3rem, 4vw, 2.1rem);
     margin-bottom: 1.5rem;
 }
 
@@ -107,6 +127,42 @@ html, body, [class*="css"] {
     font-size: 1.3rem;
     font-weight: bold;
 }
+
+/* MOBILE FIXES */
+@media (max-width: 768px) {
+    .hero {
+        min-height: auto !important;
+        padding: 2rem 1rem !important;
+        border-radius: 24px !important;
+    }
+
+    .hero h1 {
+        font-size: 2.4rem !important;
+    }
+
+    .hero h2 {
+        font-size: 1.25rem !important;
+    }
+
+    .hero p {
+        font-size: 0.95rem !important;
+    }
+
+    .mission-hero {
+        padding: 1.4rem !important;
+        border-radius: 22px !important;
+    }
+
+    .card {
+        padding: 1rem !important;
+        font-size: 0.95rem !important;
+    }
+
+    img {
+        width: 100% !important;
+        height: auto !important;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -126,19 +182,16 @@ for key, value in defaults.items():
 def strip_markdown(text):
     if not isinstance(text, str):
         return ""
-    text = text.replace("**", "")
-    text = text.replace("__", "")
-    text = text.replace("*", "")
-    return text
+    return text.replace("**", "").replace("__", "").replace("*", "")
 
 
 def html_text(text):
-    text = strip_markdown(text)
-    return text.replace("\n", "<br>")
+    return strip_markdown(text).replace("\n", "<br>")
 
 
 def clean_json(text):
     text = text.strip()
+
     if text.startswith("```json"):
         text = text.replace("```json", "").replace("```", "").strip()
     elif text.startswith("```"):
@@ -168,7 +221,7 @@ def fetch_url_text(url):
         text = " ".join([p.get_text(" ", strip=True) for p in paragraphs])
         text = re.sub(r"\s+", " ", text)
 
-        return text[:4500]
+        return text[:3500]
 
     except Exception:
         return ""
@@ -227,8 +280,6 @@ if not st.session_state.entered:
     st.markdown("### 🎥 Watch: James Webb Space Telescope")
     st.video("https://www.youtube.com/watch?v=7nT7JGZMbtM")
 
-    st.audio("https://www.nasa.gov/wp-content/uploads/2015/01/590331main_ringtone_kennedy.mp3")
-
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Learning Modes", "6+")
     c2.metric("Mission Quiz", "Interactive")
@@ -284,7 +335,7 @@ with left:
 
             if fetched:
                 st.session_state.fetched_text = fetched
-                st.session_state.article = fetched[:3000]
+                st.session_state.article = fetched[:2500]
                 st.success("Article text fetched successfully.")
                 st.rerun()
             else:
@@ -320,14 +371,14 @@ with left:
     generate_quiz = st.checkbox("Interactive MCQ quiz", value=True)
     generate_vocab = st.checkbox("Vocabulary constellation", value=True)
     generate_timeline = st.checkbox("Discovery timeline", value=True)
-    generate_whatif = st.checkbox("What If? scenario", value=True)
+    generate_whatif = st.checkbox("What If? scenario", value=False)
     generate_diagram = st.checkbox("Visual diagram", value=True)
-    generate_path = st.checkbox("Learning path", value=True)
-    generate_debate = st.checkbox("Scientist debate", value=True)
-    generate_newsroom = st.checkbox("Newsroom mode", value=True)
-    generate_difficulty = st.checkbox("Difficulty meter", value=True)
-    generate_related = st.checkbox("Related discoveries", value=True)
-    generate_career = st.checkbox("Career explorer", value=True)
+    generate_path = st.checkbox("Learning path", value=False)
+    generate_debate = st.checkbox("Scientist debate", value=False)
+    generate_newsroom = st.checkbox("Newsroom mode", value=False)
+    generate_difficulty = st.checkbox("Difficulty meter", value=False)
+    generate_related = st.checkbox("Related discoveries", value=False)
+    generate_career = st.checkbox("Career explorer", value=False)
 
     translate = st.button("✨ Launch Translation Mission")
 
@@ -385,7 +436,7 @@ You are Cosmos Lens, an award-level NASA/JWST educational AI platform.
 Reading level: {reading_level}
 
 Discovery:
-{content[:3000]}
+{content[:2500]}
 
 Selected explanation modes:
 {selected_modes}
@@ -464,8 +515,7 @@ Rules:
         st.session_state.result = json.loads(raw_output)
 
     except Exception as e:
-        st.error("Something went wrong:")
-        st.code(str(e))
+        st.warning("🚀 Gemini is busy or quota-limited. Try fewer add-ons or try again shortly.")
         st.stop()
 
 result = st.session_state.result
@@ -613,7 +663,7 @@ if result:
 You are Cosmos Tutor.
 
 Original discovery:
-{article[:1500]}
+{article[:1200]}
 
 Student question:
 {follow_question}
