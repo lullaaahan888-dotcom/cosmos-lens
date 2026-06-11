@@ -461,7 +461,7 @@ with left:
     generate_vocab = st.checkbox("Vocabulary constellation", value=True)
     generate_timeline = st.checkbox("Discovery timeline", value=True)
     generate_whatif = st.checkbox("What If? scenario", value=False)
-    generate_diagram = st.checkbox("Visual diagram", value=True)
+    generate_diagram = st.checkbox("Visual diagram", value=False)
     generate_path = st.checkbox("Learning path", value=False)
     generate_debate = st.checkbox("Scientist debate", value=False)
     generate_newsroom = st.checkbox("Newsroom mode", value=False)
